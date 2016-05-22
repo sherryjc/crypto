@@ -1,0 +1,8 @@
+{
+  "name": "crypto-challenge",
+  "version": "1.0.0",
+  "description": "Crypto Challenge",
+  "dependencies": {
+    "fs": "0.0.2"
+  }
+}
