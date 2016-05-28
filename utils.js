@@ -3,6 +3,17 @@ var fs = require('fs');
 
 var b64Table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
+var asciiFreqPoints = [
+            -1,-1,-1,-1,-1,-1,-1,-1,-1, 0, 0,-1,-1, 0,-1,-1,    // 0x00-0x0f
+            -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,    // 0x10-0x1f
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x20-0x2f
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x30-0x3f
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x40-0x4f
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x50-0x5f
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x60-0x6f
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-1                    // 0x70-0x7f
+];
+
 var utils = {
     'b64idx' : function(idx) {
         if (idx > b64Table.length) {
@@ -56,6 +67,13 @@ var utils = {
             outArr[ob++] = utils.b64idx((c0 & 0x3) << 4);
         }
         return outArr;
+    },
+    
+    'asciiCharRating' : function(idx) {
+        if (idx >= asciiFreqPoints.length) {
+            return -1;
+        }
+        return asciiFreqPoints[idx];
     }
 
 };

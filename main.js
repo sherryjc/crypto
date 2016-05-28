@@ -6,7 +6,7 @@ var fs = require('fs');
 var testHexToB64 = function() {
     var inputFile = './data/set1/challenge1/input.hex';
     var outputFile = './data/set1/challenge1/output.b64';  
-    buf = util.readHex8(inputFile);
+    var buf = util.readHex8(inputFile);
     var oBuf = util.hex8ToBase64(buf);
     var oStr = oBuf.join("");
     fs.writeFileSync(outputFile, oStr);  
@@ -37,11 +37,33 @@ var testFixedXOR = function() {
 var rate = function(numArray) {
     var score = 0;
     for (var i=0; i<numArray.length; i++) {
-        if (numArray[i] >= 0x20 && numArray[i] <= 0x7e ) {
-            score++;
+        var cRating = util.asciiCharRating(numArray[i]);
+        if (cRating < 0) {
+            return 0;
+        }
+        else {
+            score += cRating;
         }
     }
-    return score;
+    return (score*100)/numArray.length;
+};
+
+var testBinWrite = function() {
+    var inputFile = './data/set1/challenge1/input.hex';
+    var outputFile = './data/set1/challenge1/output.bin';  
+    var inBuf = util.readHex8(inputFile);
+    var rawBuf = new Buffer(inBuf, 'binary');
+    //console.log(rawBuf);
+    fs.writeFileSync(outputFile, rawBuf);
+};
+
+var numArrayToStr = function(numArr) {
+    var arrayChars = [];
+    for (var i=0; i<numArr.length; i++) {
+        arrayChars[i] = String.fromCharCode(numArr[i]);
+    }
+    var str = arrayChars.join("");
+    return str;
 };
 
 var testSingleByteXOR = function() {
@@ -51,27 +73,27 @@ var testSingleByteXOR = function() {
     var highestScore = 0;
 
     var bestArray = [];
-    for (var x=0; x<0xff; x++) {
+    for (var x=0; x<=0xff; x++) {
         var trialArray = [];
         for (var i=0; i<inBufLen; i++) {
             trialArray[i] = (inBuf[i] ^ x);
         }
+        var str = numArrayToStr(trialArray);
         var score = rate(trialArray);
+        if (score > 0) {
+          console.log(x + ": rating="+score+" " + str);          
+        }
         if (score > highestScore) {
             bestArray = trialArray;
         }
     }
 
-    var arrayChars = [];
-    for (var i=0; i<bestArray.length; i++) {
-        arrayChars[i] = String.fromCharCode(bestArray[i]);
-    }
-
-    var str = arrayChars.join("");
-    console.log("Decoded string: " + str);
+    var decodedStr = numArrayToStr(bestArray);
+    //console.log("Decoded string: " + decodedStr);
 };
 
 //testHexToB64();
 //testFixedXOR();
 
 testSingleByteXOR();
+//testBinWrite();
