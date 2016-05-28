@@ -32,5 +32,46 @@ var testFixedXOR = function() {
    fs.writeFileSync(outputFile, oStr);  
 };
 
-testHexToB64();
-testFixedXOR();
+// Set 1, Challenge 3
+
+var rate = function(numArray) {
+    var score = 0;
+    for (var i=0; i<numArray.length; i++) {
+        if (numArray[i] >= 0x20 && numArray[i] <= 0x7e ) {
+            score++;
+        }
+    }
+    return score;
+};
+
+var testSingleByteXOR = function() {
+    var input = './data/set1/challenge3/input.hex';
+    var inBuf = util.readHex8(input);
+    var inBufLen = inBuf.length;
+    var highestScore = 0;
+
+    var bestArray = [];
+    for (var x=0; x<0xff; x++) {
+        var trialArray = [];
+        for (var i=0; i<inBufLen; i++) {
+            trialArray[i] = (inBuf[i] ^ x);
+        }
+        var score = rate(trialArray);
+        if (score > highestScore) {
+            bestArray = trialArray;
+        }
+    }
+
+    var arrayChars = [];
+    for (var i=0; i<bestArray.length; i++) {
+        arrayChars[i] = String.fromCharCode(bestArray[i]);
+    }
+
+    var str = arrayChars.join("");
+    console.log("Decoded string: " + str);
+};
+
+//testHexToB64();
+//testFixedXOR();
+
+testSingleByteXOR();
