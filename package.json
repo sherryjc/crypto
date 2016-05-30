@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Crypto Challenge",
   "dependencies": {
-    "fs": "0.0.2"
+    "fs": "0.0.2",
+    "readline": "^1.3.0"
   }
 }

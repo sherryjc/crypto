@@ -1,17 +1,19 @@
 
 var fs = require('fs');
+var lineReader = require('readline');
+
 
 var b64Table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 var asciiFreqPoints = [
-            -1,-1,-1,-1,-1,-1,-1,-1,-1, 0, 0,-1,-1, 0,-1,-1,    // 0x00-0x0f
-            -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,    // 0x10-0x1f
-            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x20-0x2f
-            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x30-0x3f
-            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x40-0x4f
-            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x50-0x5f
-            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,                    // 0x60-0x6f
-            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-1                    // 0x70-0x7f
+            -1,-1,-1,-1,-1,-1,-1,-1,-1, 0, 0,-1,-1, 0,-1,-1,          // 0x00-0x0f
+            -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,          // 0x10-0x1f
+            100,1,1,1,1,1,1,1,1,1,1,1,10,1,10,1,                      // 0x20-0x2f
+            10,10,10,10,10,10,10,10,10,10,1,1,1,1,1,1,                // 0x30-0x3f
+            1,81,15,27,42,127,22,20,61,70,1,7,40,24,67,75,            // 0x40-0x4f
+            19,1,59,63,90,27,9,23,1,2,1,1,0,1,0,0,                    // 0x50-0x5f
+            1,81,15,27,42,127,22,20,61,70,1,7,40,24,67,75,            // 0x60-0x6f
+            19,1,59,63,90,27,9,23,1,2,1,1,0,0,0,-1                    // 0x70-0x7f
 ];
 
 var utils = {
@@ -25,17 +27,21 @@ var utils = {
     'readHex8' : function(infile) {
         var buf = fs.readFileSync(infile);
         var str = buf.toString('binary');
-        var nPairs = str.length/2;
-        var extra = str.length % 2;
+        return utils.hex8ToNumArray(str);
+    },
+
+    'hex8ToNumArray' : function(inStr) {
+        var nPairs = inStr.length/2;
+        var extra = inStr.length % 2;
         var outArray = [];
         var ip=0, op=0;
         for (var i=0; i<nPairs; i++) {
-            var n1 = parseInt(str[ip++], 16);
-            var n2 = parseInt(str[ip++], 16);
+            var n1 = parseInt(inStr[ip++], 16);
+            var n2 = parseInt(inStr[ip++], 16);
             outArray[op++] = (n1 << 4) + n2;
         }
         if (extra === 1) {
-            outArray[op++] = parseInt(str[ip++], 16);
+            outArray[op++] = parseInt(inStr[ip++], 16);
         }
         return outArray;
     },
@@ -74,6 +80,19 @@ var utils = {
             return -1;
         }
         return asciiFreqPoints[idx];
+    },
+    
+    'readLinesFromFile' : function(filename, cb) {
+        var lineArray = [];
+        const rl = lineReader.createInterface({
+            input: fs.createReadStream(filename)
+        });
+        rl.on('line', function(line){
+            lineArray.push(line);
+        });
+        rl.on('close', function(){
+            cb(lineArray)
+        });
     }
 
 };

@@ -80,20 +80,78 @@ var testSingleByteXOR = function() {
         }
         var str = numArrayToStr(trialArray);
         var score = rate(trialArray);
-        if (score > 0) {
-          console.log(x + ": rating="+score+" " + str);          
-        }
+        //if (score > 0) {
+        //  console.log(x + ": rating="+score+" " + str);          
+        //}
         if (score > highestScore) {
             bestArray = trialArray;
+            highestScore = score;
         }
     }
 
     var decodedStr = numArrayToStr(bestArray);
-    //console.log("Decoded string: " + decodedStr);
+    console.log("Decoded string: " + decodedStr);
+};
+
+var checkSingleByteXOR = function(inBuf) {
+    var inBufLen = inBuf.length;
+    var highestScore = 0;
+
+    var bestArray = [];
+    for (var x=0; x<=0xff; x++) {
+        var trialArray = [];
+        for (var i=0; i<inBufLen; i++) {
+            trialArray[i] = (inBuf[i] ^ x);
+        }
+        var str = numArrayToStr(trialArray);
+        var score = rate(trialArray);
+        //if (score > 0) {
+        //  console.log(x + ": rating="+score+" " + str);          
+        //}
+        if (score > highestScore) {
+            bestArray = trialArray;
+            highestScore = score;
+        }
+    }
+
+    var decodedStr = numArrayToStr(bestArray);
+    var resultsObj = {
+        'score' : highestScore,
+        'decodedStr' : decodedStr
+    };
+    return resultsObj;
+};
+
+var findBestResObj = function(resObjArray) {
+    var bestIndex = 0; 
+    var bestScore = 0;
+    for (var ii=0; ii<resObjArray.length; ii++) {
+        if (resObjArray[ii].score  > bestScore) {
+            bestIndex = ii;
+            bestScore = resObjArray[ii].score;
+        }
+    }
+    console.log("Line " + bestIndex + " had score " + bestScore + ": " 
+    + resObjArray[bestIndex].decodedStr);
+    if (bestScore !== resObjArray[bestIndex].score) {
+        console.log("Internal consistency problem");
+    }
+};
+
+var doC4 = function() {
+    var filename = './data/set1/challenge4/c4.txt';
+    var resObjArray = [];
+    util.readLinesFromFile(filename, function(lineArray){
+        for (var i=0; i<lineArray.length; i++) {
+             var numArray = util.hex8ToNumArray(lineArray[i]);
+             resObjArray[i] =  checkSingleByteXOR(numArray);
+        };
+        findBestResObj(resObjArray);
+    });
 };
 
 //testHexToB64();
 //testFixedXOR();
-
-testSingleByteXOR();
+//testSingleByteXOR();
 //testBinWrite();
+doC4();
