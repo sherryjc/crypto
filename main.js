@@ -150,8 +150,45 @@ var doC4 = function() {
     });
 };
 
+var doC5 = function() {
+    var filename = './data/set1/challenge5/input.txt';
+    var outputFile = './data/set1/challenge5/encrypted.txt';
+    var outputFile2 = './data/set1/challenge5/decrypted.txt';
+    var buf = util.readText(filename);
+    var encbuf = util.encrypt1(buf, "ICE");
+    util.writeHex(encbuf, outputFile);
+    var rtbuf = util.encrypt1(encbuf, "ICE");  // round-trip
+    util.writeNumArrayAsText(rtbuf, outputFile2);
+
+};
+
+var verifyHDExample = function() {
+    var str1 = "this is a test";
+    var str2 = "wokka wokka!!!";
+    var hd = util.hammingDistanceStr(str1, str2);
+    console.log("The Hamming Distance between '" + str1 + "' and '" + str2 + "' is " + hd);
+};
+
+var doC6 = function() {
+    var inFile = './data/set1/challenge6/input.b64';
+
+    // Read the input file into a base64 array
+    // Convert the base64 array into an array of raw numbers
+    // For each KEYSIZE in {range}
+    //     compute H-distance between first KEYSIZE bytes and second KEYSIZE bytes
+    //     normalize (/KEYSIZE)
+    // Lowest normalized h-distance is probably key length (KEYLEN)
+    // Break input into KEYLEN-sized blocks
+    // Transpose blocks: b1 = first byte of every block, b2 = second byte, etc.
+    // Solve each block as if it were single-char XOR (re-use earlier code)
+    // Put the single-char solutions together to obtain the key
+
+};
+
 //testHexToB64();
 //testFixedXOR();
 //testSingleByteXOR();
 //testBinWrite();
-doC4();
+//doC4();
+//doC5();
+doC6();

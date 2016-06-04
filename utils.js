@@ -30,6 +30,12 @@ var utils = {
         return utils.hex8ToNumArray(str);
     },
 
+    'readText' : function(infile) {
+        var txtbuf = fs.readFileSync(infile);
+        var numbuf = new Buffer(txtbuf);
+        return numbuf;
+    },
+
     'hex8ToNumArray' : function(inStr) {
         var nPairs = inStr.length/2;
         var extra = inStr.length % 2;
@@ -74,6 +80,12 @@ var utils = {
         }
         return outArr;
     },
+
+    'base64ToNumArray' : function(b64buf) {
+        var numArray = [];
+        
+        return numArray;
+    },
     
     'asciiCharRating' : function(idx) {
         if (idx >= asciiFreqPoints.length) {
@@ -93,6 +105,74 @@ var utils = {
         rl.on('close', function(){
             cb(lineArray)
         });
+    },
+
+    'encrypt1' : function(buf, key) {
+        // Encrypt1: repeating XOR
+        var keybuf = new Buffer(key);
+        var keylen = keybuf.length;
+        var outbuf = [];
+
+        for (var i=0; i<buf.length; i++) {
+            outbuf[i] = buf[i] ^ keybuf[i%keylen];
+        }
+        return outbuf;
+    },
+
+    'writeHex' : function(numBuf, outputFile) {
+        var outBuf = [];
+        for (i=0; i<numBuf.length; i++) {
+            outBuf[i] = numBuf[i].toString(16);
+            if (numBuf[i] < 16) {
+                // prepend leading 0 for single-digit numbers
+                outBuf[i] = "0" + outBuf[i];
+            }
+        }
+        var oStr = outBuf.join("");
+        fs.writeFileSync(outputFile, oStr);
+    },
+
+    'numArrayToText' : function(numBuf, outputFile) {
+        var outBuf = [];
+        for (i=0; i<numBuf.length; i++) {
+            outBuf[i] = String.fromCharCode(numBuf[i]);
+        }
+        return outBuf.join("");
+    },
+
+    'writeNumArrayAsText' : function(numBuf, outputFile) {
+        var oStr = utils.numArrayToText(numBuf);
+        fs.writeFileSync(outputFile, oStr);
+    },
+
+    'countBits' : function(x) {
+        var count = 0;
+        while (x > 0) {
+            if ( (x & 1) === 1 ) {
+                count += 1;
+            }
+            x >>= 1;
+        }
+        return count;
+    },
+
+    'hammingDistanceN' : function(n1, n2) {
+        return utils.countBits(n1 ^ n2);
+    },
+
+    'hammingDistanceNA' : function(na1, na2) {
+        var len = na1.length < na2.length ? na1.length : na2.length;
+        var distance = 0;
+        for (var i=0; i<len; i++) {
+            distance += utils.hammingDistanceN(na1[i], na2[i]);
+        }
+        return distance;
+    },
+
+    'hammingDistanceStr' : function(str1, str2) {
+        var numArray1 = new Buffer(str1);
+        var numArray2 = new Buffer(str2);
+        return utils.hammingDistanceNA(numArray1, numArray2);
     }
 
 };
